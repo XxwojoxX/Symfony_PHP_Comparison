@@ -1,0 +1,12 @@
+# Ignorowanie plików środowiskowych
+.env
+.env.local
+.env.*.local
+
+# Ignorowanie plików zależności (dla Node.js i PHP)
+node_modules/
+vendor/
+
+# Ignorowanie plików systemowych
+.DS_Store
+Thumbs.db
