@@ -1,0 +1,2 @@
+# praca_mag
+ 

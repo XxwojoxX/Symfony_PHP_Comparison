@@ -1,0 +1,62 @@
+version: '3.8'
+
+services:
+  php:
+    build: ./docker/php
+    container_name: php-app
+    volumes:
+      - ./backend-php:/var/www/html
+    ports:
+      - "8080:80"
+    depends_on:
+      - mysql
+    networks:
+      - app-network
+
+  symfony:
+    build: 
+      context: .
+      dockerfile: ./docker/symfony/Dockerfile
+    container_name: symfony-app
+    volumes:
+      - ./backend-symfony:/var/www/symfony
+    ports:
+      - "8000:8000"
+    depends_on:
+      - mysql
+    networks:
+      - app-network
+
+  mysql:
+    image: mysql:8.0
+    container_name: mysql-db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: praca_mag
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: root
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - app-network
+
+  vue:
+    build:
+      context: .
+      dockerfile: ./docker/vue/Dockerfile
+    container_name: vue-app
+    volumes:
+      - ./frontend-vue:/app
+    ports:
+      - "5173:5173"
+    networks:
+      - app-network
+
+networks:
+  app-network:
+
+volumes:
+  mysql-data:
