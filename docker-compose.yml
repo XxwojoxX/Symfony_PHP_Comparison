@@ -26,6 +26,10 @@ services:
       - mysql
     networks:
       - app-network
+    entrypoint: >
+      /bin/sh -c "cp -n .env.example .env &&
+      sed -i \"s|your-secret-key|$(openssl rand -hex 32)|g\" .env &&
+      exec docker-php-entrypoint php-fpm"
 
   mysql:
     image: mysql:8.0
