@@ -26,8 +26,10 @@ services:
       - mysql
     entrypoint: >
       /bin/sh -c "
-      cp -n .env.example .env || true;
-      sed -i 's|your-secret-key|'\"$(openssl rand -hex 32)\"'|g' .env;
+      if [ ! -f .env ]; then
+        cp .env.example .env;
+        sed -i 's|your-secret-key|'$(openssl rand -hex 32)'|g' .env;
+      fi;
       exec php-fpm"
 
   nginx:
