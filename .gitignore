@@ -3,6 +3,7 @@
 .env.local
 .env.*.local
 backend-symfony/.env
+backend-symfony/.env.dev
 
 # Ignorowanie plików zależności (dla Node.js i PHP)
 node_modules/
