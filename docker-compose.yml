@@ -30,6 +30,7 @@ services:
         cp .env.example .env;
         sed -i 's|your-secret-key|'$(openssl rand -hex 32)'|g' .env;
       fi;
+      composer install;
       exec php-fpm"
 
   nginx:
