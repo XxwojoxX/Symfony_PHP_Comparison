@@ -1,9 +1,7 @@
 FROM node:18
-
 WORKDIR /app
-COPY ../frontend-vue/package.json ./
+COPY package.json ./
 RUN npm install
-COPY . ./
-
+COPY . .
+EXPOSE 8080
 CMD ["npm", "run", "dev"]
-EXPOSE 5173
