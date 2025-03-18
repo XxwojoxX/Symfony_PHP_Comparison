@@ -1,8 +1,6 @@
 # Ignorowanie plików środowiskowych
-.env
 .env.local
 .env.*.local
-backend-symfony/.env
 backend-symfony/.env.dev
 
 # Ignorowanie plików systemowych
