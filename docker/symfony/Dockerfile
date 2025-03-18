@@ -2,8 +2,8 @@ FROM php:8.2-cli
 
 WORKDIR /var/www/symfony
 
-# Kopiowanie plików aplikacji
-COPY . .
+# Kopiowanie tylko plików z folderu symfony (w tym composer.json) do kontenera
+COPY symfony/ /var/www/symfony/
 
 # Instalacja niezbędnych pakietów, jak unzip
 RUN apt-get update && apt-get install -y unzip
