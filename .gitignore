@@ -6,9 +6,3 @@ backend-symfony/.env.dev
 # Ignorowanie plików systemowych
 .DS_Store
 Thumbs.db
-
-# Ignorowanie plików MySQL
-mysql-data/
-*.sock
-*.pid
-*.log
