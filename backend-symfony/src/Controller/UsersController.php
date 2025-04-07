@@ -19,9 +19,11 @@ final class UsersController extends AbstractController
 
     #znajdz wszystkich użytkowników
     #[Route('/users', name: 'app_users')]
-    public function getAllUsers(): JsonResponse
+    public function getAllUsers(Request $request): JsonResponse
     {
-        $users = $this->userService->getAllUsers();
+        $limit = (int) $request->get('limit', 0);
+
+        $users = $this->userService->getAllUsers($limit > 0 ? $limit : null);
 
         if(count($users) > 0)
         {
@@ -34,7 +36,8 @@ final class UsersController extends AbstractController
                     'id' => $user->getId(),
                     'username' => $user->getUsername(),
                     'email' => $user->getEmail(),
-                    'created_at' => $user->getCreatedAt()->format('Y-m-d H:i:s')
+                    'created_at' => $user->getCreatedAt()->format('Y-m-d H:i:s'),
+                    'role' => $user->getRole() ? $user->getRole()->getName() : null,
                 ];
             }
 
@@ -55,7 +58,9 @@ final class UsersController extends AbstractController
             $userData = [
                 'id' => $user->getId(),
                 'username' => $user->getUsername(),
-                'email' => $user->getEmail()
+                'email' => $user->getEmail(),
+                'created_at' => $user->getCreatedAt()->format('Y-m-d H:i:s'),
+                'role' => $user->getRole() ? $user->getRole()->getName() : null,
             ];
 
             return new JsonResponse($userData, JsonResponse::HTTP_OK);
@@ -95,7 +100,9 @@ final class UsersController extends AbstractController
             return new JsonResponse(['error' => 'Invalid data'], JsonResponse::HTTP_BAD_REQUEST);
         }
 
-        $this->userService->createUser($data['username'], $data['email'], $data['password']);
+        $roleId = $data['role_id'] ?? null;
+
+        $this->userService->createUser($data['username'], $data['email'], $data['password'], $roleId);
 
         return new JsonResponse(['status' => 'User created'], JsonResponse::HTTP_CREATED);
     }

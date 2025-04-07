@@ -4,20 +4,24 @@ namespace App\Service;
 
 use App\Repository\UsersRepository;
 use App\Entity\Users;
+use App\Entity\Roles;
+use App\Repository\RolesRepository;
 
 class UserService
 {
     private $usersRepository;
+    private $rolesRepository;
 
-    public function __construct(UsersRepository $usersRepository)
+    public function __construct(UsersRepository $usersRepository, RolesRepository $rolesRepository)
     {
+        $this->rolesRepository = $rolesRepository;
         $this->usersRepository = $usersRepository;
     }
 
     // Pobierz wszystkich użytkowników
-    public function getAllUsers(): array
+    public function getAllUsers(?int $limit = null): array
     {
-        return $this->usersRepository->findAllUsers();
+        return $this->usersRepository->findAllUsers($limit);
     }
 
     // Pobierz użytkownika po id
@@ -33,9 +37,30 @@ class UserService
     }
 
     // Stwórz nowego użytkownika
-    public function createUser(string $username, string $email, string $password): Users
+    public function createUser(string $username, string $email, string $password, ?int $roleId = null): Users
     {
-        return $this->usersRepository->createUser($username, $email, $password);
+        if(!$roleId)
+        {
+            $roleId = 2;
+        }
+
+        $role = $this->rolesRepository->findRoleById($roleId);
+
+        if(!$role)
+        {
+            throw new \Exception('Role not found.');
+        }
+
+        $user = new Users();
+        $user->setUsername($username);
+        $user->setEmail($email);
+        $user->setPassword(password_hash($password, PASSWORD_DEFAULT));
+        $user->setCreatedAt(new \DateTimeImmutable());
+        $user->setRole($role);
+
+        $this->usersRepository->saveUser($user);
+
+        return $user;
     }
 
     // Edytuj użytkownika

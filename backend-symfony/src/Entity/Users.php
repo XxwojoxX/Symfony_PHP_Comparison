@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\UsersRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use App\Entity\Roles;
 
 #[ORM\Entity(repositoryClass: UsersRepository::class)]
 class Users
@@ -25,6 +26,10 @@ class Users
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $created_at = null;
+
+    #[ORM\ManyToOne(targetEntity: Roles::class, cascade: ['persist'])]
+    #[ORM\JoinColumn(nullable: false, options: ['default' => 1])]
+    private ?Roles $role = null;
 
     public function getId(): ?int
     {
@@ -75,6 +80,18 @@ class Users
     public function setCreatedAt(\DateTimeInterface $created_at): static
     {
         $this->created_at = $created_at;
+
+        return $this;
+    }
+
+    public function getRole(): ?Roles
+    {
+        return $this->role;
+    }
+
+    public function setRole(?Roles $role): static
+    {
+        $this->role = $role;
 
         return $this;
     }

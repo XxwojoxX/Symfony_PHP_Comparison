@@ -5,23 +5,72 @@ namespace App\DataFixtures;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 use App\Entity\Users;
-use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use App\Entity\Roles;
+use Faker\Factory;
+use Symfony\Component\Console\Helper\ProgressBar;
+use Symfony\Component\Console\Output\ConsoleOutput;
 
 class UsersFixtures extends Fixture
 {
     public function load(ObjectManager $manager): void
     {
-        for($i = 1; $i <= 10; $i++)
-        {
-            $user = new Users();
-            $user->setEmail("user$i@example.com");
-            $user->setPassword('password1234');
-            $user->setUsername("user$i");
-            $user->setCreatedAt(new \DateTime());
+        $faker = Factory::create();
 
-            $manager->persist($user);
+        $batchSize = 5000;
+        $totalRecords = 1000000;
+
+        // Pobierz repozytorium ról
+        $rolesRepository = $manager->getRepository(Roles::class);
+
+        // Pobierz rolę o ID 2, jeśli nie istnieje, możemy ją dodać
+        $role = $rolesRepository->findOneBy(['id' => 2]);
+
+        // Jeżeli rola o ID 2 nie istnieje, możemy utworzyć ją tutaj
+        if (!$role) {
+            $role = new Roles();
+            $role->setName('Default Role');
+            $manager->persist($role);
+            $manager->flush(); // Zapewni to zapisanie nowej roli do bazy
         }
 
+        // Inicjalizacja paska postępu
+        $output = new ConsoleOutput();
+        $progressBar = new ProgressBar($output, $totalRecords);
+        $progressBar->start();
+
+        $startTime = microtime(true); // Zaczynamy mierzyć czas
+
+        for ($i = 0; $i < $totalRecords; $i++) {
+            $user = new Users();
+            $user->setEmail($faker->unique()->safeEmail());
+            $user->setPassword(password_hash('password' . $i, PASSWORD_BCRYPT));
+            $user->setUsername($faker->userName());
+            $user->setCreatedAt(new \DateTime());
+
+            // Przypisanie roli
+            $user->setRole($role);
+
+            $manager->persist($user);
+            $progressBar->advance(); // Aktualizacja paska postępu
+
+            // Wykonaj flush co 1000 użytkowników, aby nie zapełniać pamięci
+            if (($i % $batchSize) === 0 && $i > 0) {
+                $manager->flush();
+                $manager->clear();
+                gc_collect_cycles();
+            }
+
+            // Wyświetlanie czasu, który minął na bieżąco
+            $elapsedTime = round(microtime(true) - $startTime, 2);
+            $estimatedTime = round($elapsedTime / ($i + 1) * ($totalRecords - $i - 1), 2);
+            $progressBar->setMessage("⏳ Czas: {$elapsedTime}s | Estymowany czas: {$estimatedTime}s", 'info');
+        }
+
+        // Zapewniamy zapisanie pozostałych danych
         $manager->flush();
+
+        // Zakończenie paska postępu
+        $progressBar->finish();
+        $output->writeln("\nZakończono dodawanie użytkowników!");
     }
 }
