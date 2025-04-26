@@ -20,5 +20,9 @@ services:
             - '../src/Entity/'
             - '../src/Kernel.php'
 
+    # Definicja PostService z ręcznym wstrzyknięciem zależności
+    App\Service\PostService:
+        arguments:
+
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones

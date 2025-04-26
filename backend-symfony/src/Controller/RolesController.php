@@ -17,7 +17,7 @@ final class RolesController extends AbstractController
         $this->roleService = $roleService;
     }
 
-    #[Route('/roles', name: 'app_roles')]
+    #[Route('/api/roles', name: 'app_roles')]
     public function getAllRoles(): JsonResponse
     {
         $roles = $this->roleService->getAllRoles();
@@ -41,7 +41,7 @@ final class RolesController extends AbstractController
         return new JsonResponse(['error' => 'No roles found'], JsonResponse::HTTP_NOT_FOUND);
     }
 
-    #[Route('/roles/{id}', name: 'get_role', methods: ['GET'])]
+    #[Route('/api/roles/{id}', name: 'get_role', methods: ['GET'])]
     public function getRoleById(int $id): JsonResponse
     {
         $role = $this->roleService->getRoleById($id);
@@ -59,7 +59,7 @@ final class RolesController extends AbstractController
         return new JsonResponse(['error' => 'Role not found'], JsonResponse::HTTP_NOT_FOUND);
     }
 
-    #[Route('/roles/create', name: 'create_role', methods: ['POST'])]
+    #[Route('/api/roles/create', name: 'create_role', methods: ['POST'])]
     public function createRole(Request $request): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
@@ -75,7 +75,7 @@ final class RolesController extends AbstractController
     }
 
     #usun role
-    #[Route('/roles/delete/{id}', name: 'delete_role', methods: ['DELETE'])]
+    #[Route('/api/roles/delete/{id}', name: 'delete_role', methods: ['DELETE'])]
     public function deleteRole(int $id): JsonResponse
     {
         // Wywołaj metodę z RoleService, która zwraca odpowiedni wynik

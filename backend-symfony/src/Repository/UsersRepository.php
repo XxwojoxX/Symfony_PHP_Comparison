@@ -70,6 +70,15 @@ class UsersRepository extends ServiceEntityRepository
             ->getResult();
     }
 
+    public function findUserByEmail(string $email): ?Users
+    {
+        return $this->createQueryBuilder('u')
+            ->andWhere('u.email = :email')
+            ->setParameter('email', $email)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
     #stworz nowego użytkownika
     public function createUser(string $username, string $email, string $password): Users
     {

@@ -1,5 +1,9 @@
 <?php
 
+namespace App\Entities;
+
+use DateTime;
+
 class Users
 {
     public ?int $id = null;

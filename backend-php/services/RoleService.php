@@ -1,6 +1,10 @@
 <?php
 
-require_once 'repositories/RolesRepository.php';
+namespace App\Services;
+
+use App\Repositories\RolesRepository;
+use App\Entities\Roles;
+use Exception;
 
 class RoleService
 {

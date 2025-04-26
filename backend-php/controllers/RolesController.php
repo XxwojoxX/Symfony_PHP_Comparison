@@ -1,6 +1,9 @@
 <?php
 
-require_once 'services/RoleService.php';
+namespace App\Controllers;
+
+use App\Services\RoleService;
+use Exception;
 
 class RolesController
 {

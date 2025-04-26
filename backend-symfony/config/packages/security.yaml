@@ -1,0 +1,43 @@
+security:
+    password_hashers:
+        Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
+
+    providers:
+        app_user_provider:
+            entity:
+                class: App\Entity\Users
+                property: email
+
+    firewalls:
+        dev:
+            pattern: ^/(_(profiler|wdt)|css|images|js)/
+            security: false
+
+        login:
+            pattern: ^/api/login$ # Zmieniono na dokładne dopasowanie /api/login
+            stateless: true
+            json_login:
+                check_path: /api/login # Zmieniono na /api/login
+                username_path: email
+                password_path: password
+                success_handler: lexik_jwt_authentication.handler.authentication_success
+                failure_handler: lexik_jwt_authentication.handler.authentication_failure
+
+        register:
+            pattern: ^/api/register$ # Zmieniono na dokładne dopasowanie /api/register
+            stateless: true # Rejestracja również powinna być bezstanowa w API
+            security: false # Publicznie dostępny endpoint
+
+        api:
+            pattern: ^/api/
+            stateless: true
+            jwt: ~
+
+        main: # Możesz usunąć lub dostosować ten firewall w zależności od potrzeb Twojej aplikacji API
+            pattern: ^/
+            security: false # Zakładam, że cała logika uwierzytelniania jest w /api/
+
+    access_control:
+        - { path: ^/api/login, roles: PUBLIC_ACCESS }
+        - { path: ^/api/register, roles: PUBLIC_ACCESS }
+        - { path: ^/api/, roles: IS_AUTHENTICATED_FULLY } # Zabezpieczamy wszystkie ścieżki pod /api/

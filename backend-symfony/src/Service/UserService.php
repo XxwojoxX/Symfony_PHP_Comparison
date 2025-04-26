@@ -36,6 +36,11 @@ class UserService
         return $this->usersRepository->findUserByUsername($username);
     }
 
+    public function getUserByEmail(string $email): ?Users
+    {
+        return $this->usersRepository->findUserByEmail($email);
+    }
+
     // Stwórz nowego użytkownika
     public function createUser(string $username, string $email, string $password, ?int $roleId = null): Users
     {
@@ -92,5 +97,16 @@ class UserService
     public function deleteUser(Users $user): void
     {
         $this->usersRepository->deleteUser($user);
+    }
+
+    public function authenticateUser(string $username, string $password): ?Users
+    {
+        $user = $this->usersRepository->findUserByUsername($username);
+
+        if(!$user || !password_verify($password, $user->getPassword())) {
+            return null; // Nie udało się zweryfikować użytkownika
+        }
+
+        return $user; // Zwróć użytkownika, jeśli uwierzytelnianie się powiodło
     }
 }

@@ -1,18 +1,56 @@
 <?php
 
-require_once 'services/UserService.php';
+namespace App\Controllers;
+
+use App\Services\UserService;
+use App\Services\JWTService;
+use Exception;
 
 class UsersController
 {
     private UserService $userService;
+    private JWTService $jwtService;
 
-    public function __construct(UserService $userService)
+    public function __construct(UserService $userService, JWTService $jwtService)
     {
         $this->userService = $userService;
+        $this->jwtService = $jwtService;
+    }
+
+    private function authenticate(): ?object
+    {
+        $headers = getallheaders();
+
+        if(!isset($headers['Authorization']))
+        {
+            http_response_code(401);
+            echo json_encode(['error' => 'No authorization header']);
+
+            return null;
+        }
+
+        $token = str_replace('Bearer', '', $headers['Authorization']);
+        $decoded = $this->jwtService->decodeToken($token);
+
+        if(!$decoded)
+        {
+            http_response_code(401);
+            echo json_encode(['error' => 'Invalid or expired token']);
+
+            return null;
+        }
+
+        return $decoded;
     }
 
     public function getAllUsers(): void
     {
+        $user = $this->authenticate();
+        if(!$user)
+        {
+            return;
+        }
+
         $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : null;
         $users = $this->userService->getAllUsers($limit);
 
@@ -81,6 +119,12 @@ class UsersController
 
     public function updateUser($id): void
     {
+        $user = $this->authenticate();
+        if(!$user)
+        {
+            return;
+        }
+
         $data = json_decode(file_get_contents('php://input'), true);
 
         try

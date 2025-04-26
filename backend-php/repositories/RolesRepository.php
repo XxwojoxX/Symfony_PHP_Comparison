@@ -1,6 +1,9 @@
 <?php
 
-require_once 'entities/Roles.php';
+namespace App\Repositories;
+
+use App\Entities\Roles;
+use PDO;
 
 class RolesRepository
 {
@@ -18,7 +21,7 @@ class RolesRepository
 
         while($row = $stmt->fetch())
         {
-            $role = new Roels();
+            $role = new Roles();
             $role->id = $row['id'];
             $role->name = $row['name'];
             $roles[] = $role;

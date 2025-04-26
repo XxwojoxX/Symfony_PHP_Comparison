@@ -1,7 +1,13 @@
 <?php
 
-require_once 'repositories/RolesRepository.php';
-require_once 'repositories/UsersRepository.php';
+namespace App\Services;
+
+use App\Repositories\UsersRepository;
+use App\Repositories\RolesRepository;
+use App\Entities\Users;
+use App\Entities\Roles;
+use DateTime;
+use Exception;
 
 class UserService
 {

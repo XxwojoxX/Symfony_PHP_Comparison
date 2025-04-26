@@ -18,7 +18,7 @@ final class UsersController extends AbstractController
     }
 
     #znajdz wszystkich użytkowników
-    #[Route('/users', name: 'app_users')]
+    #[Route('/api/users', name: 'app_users')]
     public function getAllUsers(Request $request): JsonResponse
     {
         $limit = (int) $request->get('limit', 0);
@@ -48,7 +48,7 @@ final class UsersController extends AbstractController
     }
 
     #znajdz użytkownika po id
-    #[Route('/users/{id}', name: 'get_user', methods: ['GET'])]
+    #[Route('/api/users/{id}', name: 'get_user', methods: ['GET'])]
     public function getUserById(int $id): JsonResponse
     {
         $user = $this->userService->getUserById($id);
@@ -70,7 +70,7 @@ final class UsersController extends AbstractController
     }
 
     #znajdz użytkownika po nazwie użytkownika
-    #[Route('/user/{username}', name: 'get_user_by_username', methods: ['GET'])]
+    #[Route('/api/user/{username}', name: 'get_user_by_username', methods: ['GET'])]
     public function getUserByUsername(string $username): JsonResponse
     {
         $user = $this->userService->findUserByUsername($username);
@@ -90,7 +90,7 @@ final class UsersController extends AbstractController
     }
 
     #stworz nowego użytkownika
-    #[Route('/user/create', name: 'create_user', methods: ['POST'])]
+    #[Route('/api/user/create', name: 'create_user', methods: ['POST'])]
     public function createUser(Request $request): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
@@ -108,7 +108,7 @@ final class UsersController extends AbstractController
     }
 
     #edytuj użytkownika
-    #[Route('/user/update/{id}', name: 'update_user', methods: ['PUT'])]
+    #[Route('/api/user/update/{id}', name: 'update_user', methods: ['PUT'])]
     public function updateUser(int $id, Request $request): JsonResponse
     {
         $user = $this->userService->getUserById($id);
@@ -126,7 +126,7 @@ final class UsersController extends AbstractController
     }
 
     #usuń użytkownika
-    #[Route('/user/delete/{id}', name: 'delete_user', methods: ['DELETE'])]
+    #[Route('/api/user/delete/{id}', name: 'delete_user', methods: ['DELETE'])]
     public function deleteUser(int $id): JsonResponse
     {
         $user = $this->userService->getUserById($id);

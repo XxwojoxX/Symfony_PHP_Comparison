@@ -1,8 +1,15 @@
 <?php
 
-require_once 'controllers/UsersController.php';
-require_once 'controllers/RolesController.php';
+require_once 'vendor/autoload.php';
 require_once 'config/bootstrap.php';
+
+use App\Services\JWTService;
+use App\Services\UserService;
+use App\Repositories\UsersRepository;
+use App\Repositories\RolesRepository;
+use App\Controllers\UsersController;
+use App\Controllers\RolesController;
+use App\Controllers\AuthController;
 
 $pdo = new PDO($dsn, $user, $pass, $options);
 
@@ -12,10 +19,12 @@ $rolesRepository = new RolesRepository($pdo);
 // Serwisy (zależności)
 $userService = new UserService($usersRepository, $rolesRepository);
 $roleService = new RoleService($rolesRepository);
+$jwtService = new JWTService("secret_key", "http://localhost");
 
 // Kontrolery
 $usersController = new UsersController($userService);
 $rolesController = new RolesController($roleService);
+$authController = new AuthController($userService, $jwtService);
 
 // Pobierz ścieżkę i metodę
 $method = $_SERVER['REQUEST_METHOD'];
@@ -24,6 +33,10 @@ $path = rtrim($path, '/'); // usuń końcowy slash
 
 // Routing
 switch (true) {
+    // LOGOWANIE
+    case $path === '/login' && $method === 'POST':
+        $authControlelr->login();
+        break;
     // USERS
     case $path === '/users' && $method === 'GET':
         $usersController->getAllUsers();

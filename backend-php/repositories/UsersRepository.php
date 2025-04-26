@@ -1,7 +1,10 @@
 <?php
 
-require_once 'entities/Users.php';
-require_once 'entities/Roles.php';
+namespace App\Repositories;
+
+use App\Entities\Users;
+use App\Entities\Roles;
+use PDO;
 
 class UsersRepository
 {
