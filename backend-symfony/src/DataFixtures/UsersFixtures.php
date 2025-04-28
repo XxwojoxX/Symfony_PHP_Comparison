@@ -28,7 +28,7 @@ class UsersFixtures extends Fixture
         // Jeżeli rola o ID 2 nie istnieje, możemy utworzyć ją tutaj
         if (!$role) {
             $role = new Roles();
-            $role->setName('Default Role');
+            $role->setName('ROLE_USER');
             $manager->persist($role);
             $manager->flush(); // Zapewni to zapisanie nowej roli do bazy
         }
