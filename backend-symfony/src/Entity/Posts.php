@@ -54,13 +54,9 @@ class Posts
     #[ORM\OneToMany(targetEntity: Comment::class, mappedBy: 'post')]
     private Collection $comments;
 
-    #[ORM\OneToMany(targetEntity: Media::class, mappedBy: 'post')]
-    private Collection $media;
-
     public function __construct()
     {
         $this->comments = new ArrayCollection();
-        $this->media = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -211,35 +207,6 @@ class Posts
         if ($this->comments->removeElement($comment)) {
             if ($comment->getPost() === $this) {
                 $comment->setPost(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, Media>
-     */
-    public function getMedia(): Collection
-    {
-        return $this->media;
-    }
-
-    public function addMedium(Media $medium): static
-    {
-        if (!$this->media->contains($medium)) {
-            $this->media->add($medium);
-            $medium->setPost($this);
-        }
-
-        return $this;
-    }
-
-    public function removeMedium(Media $medium): static
-    {
-        if ($this->media->removeElement($medium)) {
-            if ($medium->getPost() === $this) {
-                $medium->setPost(null);
             }
         }
 

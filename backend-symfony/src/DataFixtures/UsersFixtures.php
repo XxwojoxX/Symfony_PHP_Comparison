@@ -43,7 +43,7 @@ class UsersFixtures extends Fixture
         for ($i = 0; $i < $totalRecords; $i++) {
             $user = new Users();
             $user->setEmail($faker->unique()->safeEmail());
-            $user->setPassword(password_hash('password' . $i, PASSWORD_BCRYPT));
+            $user->setPassword(password_hash('zaq1@WSX', PASSWORD_BCRYPT));
             $user->setUsername($faker->userName());
             $user->setCreatedAt(new \DateTime());
 
