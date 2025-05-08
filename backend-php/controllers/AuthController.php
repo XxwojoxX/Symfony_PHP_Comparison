@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller;
+namespace App\Controllers;
 
 use App\Services\UserService;
 use App\Services\JWTService;
@@ -20,26 +20,29 @@ class AuthController
     {
         $data = json_decode(file_get_contents('php://input'), true);
 
-        if(!isset($data['username'], $data['password']))
-        {
+        if (!isset($data['email']) || !isset($data['password'])) {
             http_response_code(400);
-            echo json_encode(['error' => 'Invalid Input']);
-
+            echo json_encode(['error' => 'Invalid credentials']);
             return;
         }
 
-        $user = $this->userService->getUserByName($data['username']);
+        // Użyj metody uwierzytelniania z UserService (która używa email i hasło)
+        $user = $this->userService->authenticateUser($data['email'], $data['password']);
 
-        if(!$user || !password_verify($data['password'], $user->password))
-        {
+        if (!$user) {
             http_response_code(401);
             echo json_encode(['error' => 'Invalid credentials']);
-
             return;
         }
 
-        $token = $this->jwtService->generateToken($user->id, $user->username, $user->role->name);
+         // Sprawdź, czy rola użytkownika istnieje przed próbą dostępu do jej nazwy
+        $roleName = $user->role ? $user->role->name : 'ROLE_USER';
 
+
+        // Generuj token używając JWTService
+        $token = $this->jwtService->generateToken($user->id, $user->username, $roleName);
+
+        header('Content-Type: application/json');
         echo json_encode(['token' => $token]);
     }
 }

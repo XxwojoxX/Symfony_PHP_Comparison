@@ -3,7 +3,9 @@
 namespace App\Repositories;
 
 use App\Entities\Roles;
+use App\Entities\Users; // Dodano użycie Users do metody findUserByRole
 use PDO;
+use PDOStatement;
 
 class RolesRepository
 {
@@ -19,12 +21,9 @@ class RolesRepository
         $stmt = $this->pdo->query("SELECT * FROM roles");
         $roles = [];
 
-        while($row = $stmt->fetch())
+        while($row = $stmt->fetch(PDO::FETCH_ASSOC))
         {
-            $role = new Roles();
-            $role->id = $row['id'];
-            $role->name = $row['name'];
-            $roles[] = $role;
+            $roles[] = $this->mapRowToRole($row);
         }
 
         return $roles;
@@ -34,18 +33,14 @@ class RolesRepository
     {
         $stmt = $this->pdo->prepare("SELECT * FROM roles WHERE id = :id");
         $stmt->execute(['id' => $id]);
-        $row = $stmt->fetch();
-        
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
         if(!$row)
         {
             return null;
         }
 
-        $role = new Roles();
-        $role->id = $row['id'];
-        $role->name = $row['name'];
-
-        return $role;
+        return $this->mapRowToRole($row);
     }
 
     public function createRole(string $name): Roles
@@ -60,9 +55,20 @@ class RolesRepository
         return $role;
     }
 
-    public function deleteRole(Roles $role): void
+    // Metoda findUserByRole została usunięta, ponieważ powinna być w UsersRepository lub UserService
+
+     public function deleteRole(Roles $role): void
     {
         $stmt = $this->pdo->prepare("DELETE FROM roles WHERE id = :id");
         $stmt->execute(['id' => $role->id]);
+    }
+
+
+    private function mapRowToRole(array $row): Roles
+    {
+        $role = new Roles();
+        $role->id = $row['id'];
+        $role->name = $row['name'];
+        return $role;
     }
 }

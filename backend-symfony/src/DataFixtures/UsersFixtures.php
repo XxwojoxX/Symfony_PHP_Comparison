@@ -9,8 +9,9 @@ use App\Entity\Roles;
 use Faker\Factory;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Output\ConsoleOutput;
+use Doctrine\Bundle\FixturesBundle\FixtureGroupInterface;
 
-class UsersFixtures extends Fixture
+class UsersFixtures extends Fixture implements FixtureGroupInterface
 {
     public function load(ObjectManager $manager): void
     {
@@ -72,5 +73,11 @@ class UsersFixtures extends Fixture
         // Zakończenie paska postępu
         $progressBar->finish();
         $output->writeln("\nZakończono dodawanie użytkowników!");
+    }
+
+    public static function getGroups(): array
+    {
+        // Przypisujemy do grupy 'user_group' i opcjonalnie do 'initial_data' lub innej grupy globalnej
+        return ['user_group', 'initial_data'];
     }
 }

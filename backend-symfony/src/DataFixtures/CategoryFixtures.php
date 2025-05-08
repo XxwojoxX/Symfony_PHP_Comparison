@@ -7,8 +7,9 @@ use Doctrine\Persistence\ObjectManager;
 use App\Entity\Category;
 use Faker\Factory;
 use Symfony\Component\String\Slugger\SluggerInterface;
+use Doctrine\Bundle\FixturesBundle\FixtureGroupInterface;
 
-class CategoryFixtures extends Fixture
+class CategoryFixtures extends Fixture implements FixtureGroupInterface
 {
     private SluggerInterface $slugger;
 
@@ -42,5 +43,10 @@ class CategoryFixtures extends Fixture
         }
 
         $manager->flush();
+    }
+
+    public static function getGroups(): array
+    {
+        return ['category_group', 'initial_data']; // Możesz przypisać fixturę do jednej lub wielu grup
     }
 }

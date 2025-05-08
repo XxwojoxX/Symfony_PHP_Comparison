@@ -17,10 +17,10 @@ class UsersController
         $this->jwtService = $jwtService;
     }
 
-    private function authenticate(): ?object
+     // Metoda do uwierzytelniania - skopiowana z innych kontrolerów
+     private function authenticate(): ?object
     {
         $headers = getallheaders();
-
         if(!isset($headers['Authorization']))
         {
             http_response_code(401);
@@ -29,7 +29,7 @@ class UsersController
             return null;
         }
 
-        $token = str_replace('Bearer', '', $headers['Authorization']);
+        $token = str_replace('Bearer ', '', $headers['Authorization']);
         $decoded = $this->jwtService->decodeToken($token);
 
         if(!$decoded)
@@ -45,111 +45,116 @@ class UsersController
 
     public function getAllUsers(): void
     {
-        $user = $this->authenticate();
-        if(!$user)
-        {
-            return;
-        }
+        // Ta metoda powinna być chroniona (np. tylko dla admina)
+         $userToken = $this->authenticate();
+         if (!$userToken) {
+             return;
+         }
+         // Opcjonalnie: Sprawdź rolę użytkownika z $userToken->role i zwróć 403 Forbidden jeśli nie jest adminem
 
         $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : null;
         $users = $this->userService->getAllUsers($limit);
 
-        if(count($users) > 0)
-        {
-            $response = array_map(function($user)
-            {
-                return
-                [
-                    'id' => $user->id,
-                    'username' => $user->username,
-                    'email' => $user->email,
-                    'created_at' => $user->created_at->format('Y-m-d H:i:s'),
-                    'role' => $user->role?->name
-                ];
-            }, $users);
-
-            echo json_encode($response);
-        }
-        else
-        {
-            http_response_code(404);
-            echo json_encode(['error' => 'No users found']);
-        }
-    }
-
-    public function getUserById($id): void
-    {
-        $user = $this->userService->getUserById($id);
-
-        if($user)
-        {
-            echo json_encode([
+        // Usuwamy hasło przed zwróceniem danych użytkowników
+        $response = array_map(function($user) {
+            return [
                 'id' => $user->id,
                 'username' => $user->username,
                 'email' => $user->email,
-                'created_at' => $user->created_at->format('Y-m-d H:i:s'),
-                'role' => $user->role?->name
-            ]);
-        }
-        else
-        {
+                'created_at' => $user->created_at ? $user->created_at->format('Y-m-d H:i:s') : null,
+                 'role_id' => $user->role ? $user->role->id : null,
+                 'role_name' => $user->role ? $user->role->name : null,
+            ];
+        }, $users);
+
+        header('Content-Type: application/json');
+        echo json_encode($response);
+    }
+
+    public function getUserById(int $id): void
+    {
+        // Ta metoda powinna być chroniona (użytkownik może pobrać swoje dane lub admin dane innych)
+         $userToken = $this->authenticate();
+         if (!$userToken) {
+             return;
+         }
+         // Opcjonalnie: Sprawdź czy $userToken->sub == $id lub czy użytkownik ma rolę admina, w przeciwnym razie zwróć 403 Forbidden
+
+
+        $user = $this->userService->getUserById($id);
+
+        if ($user) {
+             // Usuń hasło przed zwróceniem danych
+             $response = [
+                'id' => $user->id,
+                'username' => $user->username,
+                'email' => $user->email,
+                'created_at' => $user->created_at ? $user->created_at->format('Y-m-d H:i:s') : null,
+                 'role_id' => $user->role ? $user->role->id : null,
+                 'role_name' => $user->role ? $user->role->name : null,
+             ];
+            header('Content-Type: application/json');
+            echo json_encode($response);
+        } else {
             http_response_code(404);
             echo json_encode(['error' => 'User not found']);
         }
     }
 
-    public function createUser(): void
+    // Metoda createUser została przeniesiona do RegisterController
+
+    public function updateUser(int $id): void
     {
-        $data = json_decode(file_get_contents('php://input'), true);
-
-        if(!isset($data['username'], $data['email'], $data['password']))
-        {
-            http_response_code(400);
-            echo json_encode(['error' => 'Invalid input']);
-            return;
-        }
-
-        $roleId = $data['role_id'] ?? 2;
-
-        $this->userService->createUser($data['username'], $data['email'], $data['password'], $roleId);
-
-        http_response_code(201);
-        echo json_encode(['message' => 'User created successfully']);
-    }
-
-    public function updateUser($id): void
-    {
-        $user = $this->authenticate();
-        if(!$user)
-        {
-            return;
-        }
+        // Ta metoda powinna być chroniona (użytkownik może edytować swoje dane lub admin dane innych)
+         $userToken = $this->authenticate();
+         if (!$userToken) {
+             return;
+         }
+         // Opcjonalnie: Sprawdź czy $userToken->sub == $id lub czy użytkownik ma rolę admina, w przeciwnym razie zwróć 403 Forbidden
 
         $data = json_decode(file_get_contents('php://input'), true);
 
-        try
-        {
-            $this->userService->updateUser($id, $data['username'], $data['email'], $data['password'], $data['role_id']);
-            echo json_encode(['message' => 'User updated successfully']);
+        try {
+             $user = $this->userService->getUserById($id);
+             if(!$user) {
+                 http_response_code(404);
+                 echo json_encode(['error' => 'User not found']);
+                 return;
+             }
+
+            $this->userService->updateUser($user, $data);
+
+             http_response_code(200);
+             echo json_encode(['message' => 'User updated successfully']);
+
+        } catch (\InvalidArgumentException $e) {
+             http_response_code(400);
+             echo json_encode(['error' => $e->getMessage()]);
         }
-        catch(Exception $e)
-        {
-            http_response_code(404);
-            echo json_encode(['error' => 'User not found']);
+        catch (\Exception $e) {
+            http_response_code(500);
+            echo json_encode(['error' => 'An error occurred while updating the user: ' . $e->getMessage()]);
         }
     }
 
-    public function deleteUser($id): void
+    public function deleteUser(int $id): void
     {
-        try
-        {
+        // Ta metoda powinna być chroniona (użytkownik może usunąć swoje konto lub admin dane innych)
+         $userToken = $this->authenticate();
+         if (!$userToken) {
+             return;
+         }
+          // Opcjonalnie: Sprawdź czy $userToken->sub == $id lub czy użytkownik ma rolę admina, w przeciwnym razie zwróć 403 Forbidden
+
+
+        try {
             $this->userService->deleteUser($id);
+            http_response_code(200);
             echo json_encode(['message' => 'User deleted successfully']);
-        }
-        catch(Exception $e)
-        {
-            http_response_code(404);
-            echo json_encode(['error' => 'User not found']);
+
+        } catch (\Exception $e) {
+             http_response_code(500);
+             echo json_encode(['error' => 'An error occurred while deleting the user: ' . $e->getMessage()]);
         }
     }
 }
