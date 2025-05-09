@@ -1,7 +1,7 @@
 <?php
 
-require_once 'vendor/autoload.php'; // Jeśli używasz Composera
-require_once 'config/bootstrap.php';
+require_once '../vendor/autoload.php'; // Jeśli używasz Composera
+require_once '../config/bootstrap.php';
 
 use App\Services\JWTService;
 use App\Services\UserService;

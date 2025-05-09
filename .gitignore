@@ -6,3 +6,5 @@ backend-symfony/.env.dev
 # Ignorowanie plików systemowych
 .DS_Store
 Thumbs.db
+
+*.csv
