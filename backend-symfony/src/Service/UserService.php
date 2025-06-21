@@ -24,6 +24,11 @@ class UserService
         return $this->usersRepository->findAllUsers($limit);
     }
 
+    public function getAllUsersFast(?int $limit = null): array
+{
+    return $this->usersRepository->findAllUsersNative($limit);
+}
+
     // Pobierz użytkownika po id
     public function getUserById(int $id): ?Users
     {

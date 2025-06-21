@@ -47,6 +47,15 @@ final class UsersController extends AbstractController
         return new JsonResponse(['error' => 'No users found'], JsonResponse::HTTP_NOT_FOUND);
     }
 
+    #[Route('/api/users2', name: 'app_users')]
+    public function getAllUsers2(Request $request): JsonResponse
+{
+    $limit = (int) $request->get('limit', 0);
+    $users = $this->userService->getAllUsersFast($limit > 0 ? $limit : null);
+
+    return new JsonResponse($users, JsonResponse::HTTP_OK);
+}
+
     #znajdz użytkownika po id
     #[Route('/api/users/{id}', name: 'get_user', methods: ['GET'])]
     public function getUserById(int $id): JsonResponse

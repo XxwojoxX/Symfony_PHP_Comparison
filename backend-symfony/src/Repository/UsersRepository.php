@@ -38,6 +38,24 @@ class UsersRepository extends ServiceEntityRepository
             return $qb->getQuery()->getResult();
     }
 
+    public function findAllUsersNative(?int $limit = null): array
+{
+    $conn = $this->getEntityManager()->getConnection();
+
+    $sql = "
+        SELECT u.id, u.username, u.email, u.created_at, r.name AS role_name
+        FROM users u
+        LEFT JOIN roles r ON u.role_id = r.id
+        ORDER BY u.id ASC
+    ";
+
+    if ($limit !== null) {
+        $sql .= " LIMIT " . (int) $limit;
+    }
+
+    return $conn->executeQuery($sql)->fetchAllAssociative();
+}
+
     #znajdź użytkownika po id
     public function findUserById(int $id): ?Users
     {
