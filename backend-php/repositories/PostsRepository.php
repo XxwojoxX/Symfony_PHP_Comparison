@@ -18,6 +18,11 @@ class PostsRepository
         $this->pdo = $pdo;
     }
 
+    public function getPdo(): PDO
+    {
+        return $this->pdo;
+    }
+
     public function findAllPosts(?int $limit = null): array
     {
         $sql = "SELECT p.*, u.id as user_id, u.username, u.email, c.id as category_id, c.name as category_name, c.slug as category_slug

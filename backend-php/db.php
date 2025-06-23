@@ -10,6 +10,7 @@ $options = [
     PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION, // Wyrzucaj wyjątki w przypadku błędów
     PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,       // Domyślny tryb pobierania danych jako tablice asocjacyjne
     PDO::ATTR_EMULATE_PREPARES   => false,                  // Wyłącz emulację prepare statements (zalecane)
+    PDO::ATTR_PERSISTENT         => true,
 ];
 
 try {

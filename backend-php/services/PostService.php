@@ -102,35 +102,35 @@ class PostService
 
         return $post;
     }
-
+    
     public function deletePost(int $id): bool
     {
-        $post = $this->postsRepository->findPostById($id);
+        // Rozpocznij transakcję
+        $this->postsRepository->getPDO()->beginTransaction(); // Musisz dodać metodę getPDO() w repo, żeby uzyskać dostęp do PDO
 
-        if (!$post) {
-            return false; // Post nie znaleziony
+        try {
+            $post = $this->postsRepository->findPostById($id);
+
+            if (!$post) {
+                $this->postsRepository->getPDO()->rollBack(); // Jeśli nie ma posta, wycofaj transakcję
+                return false;
+            }
+
+            $comments = $this->commentRepository->findCommentsByPostId($id);
+            if (!empty($comments)) {
+                $commentIds = array_map(fn($comment) => $comment->id, $comments);
+                $this->commentRepository->deleteCommentsByIds($commentIds);
+            }
+
+            $this->postsRepository->deletePost($post);
+
+            $this->postsRepository->getPDO()->commit(); // Zatwierdź transakcję
+            return true;
+
+        } catch (\Exception $e) {
+            $this->postsRepository->getPDO()->rollBack(); // Wycofaj transakcję w przypadku błędu
+            // Loguj $e->getMessage()
+            throw $e; // Ponownie wyrzuć wyjątek
         }
-
-        // ----- Logika usuwania powiązanych komentarzy -----
-
-        // Znajdź wszystkie komentarze powiązane z tym postem
-        $comments = $this->commentRepository->findCommentsByPostId($id);
-
-        // Jeśli istnieją komentarze, usuń je
-        if (!empty($comments)) {
-            $commentIds = array_map(fn($comment) => $comment->id, $comments);
-            $this->commentRepository->deleteCommentsByIds($commentIds); // Użyj metody usuwania wielu komentarzy
-            // Lub usuwaj pojedynczo:
-            // foreach ($comments as $comment) {
-            //     $this->commentRepository->deleteComment($comment);
-            // }
-        }
-
-        // ----- Koniec logiki usuwania powiązanych komentarzy -----
-
-        // Teraz można bezpiecznie usunąć posta, ponieważ nie ma powiązanych komentarzy
-        $this->postsRepository->deletePost($post);
-
-        return true; // Post usunięty pomyślnie
     }
 }
