@@ -18,7 +18,7 @@ final class UsersController extends AbstractController
     }
 
     #znajdz wszystkich użytkowników
-    #[Route('/api/users', name: 'app_users')]
+    #[Route('/api/users', name: 'app_users', methods: ['GET'])]
     public function getAllUsers(Request $request): JsonResponse
     {
         $limit = (int) $request->get('limit', 0);
@@ -47,7 +47,7 @@ final class UsersController extends AbstractController
         return new JsonResponse(['error' => 'No users found'], JsonResponse::HTTP_NOT_FOUND);
     }
 
-    #[Route('/api/users2', name: 'app_users')]
+    #[Route('/api/users2', name: 'app_users2')]
     public function getAllUsers2(Request $request): JsonResponse
 {
     $limit = (int) $request->get('limit', 0);
