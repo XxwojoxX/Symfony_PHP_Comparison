@@ -8,3 +8,6 @@ backend-symfony/.env.dev
 Thumbs.db
 
 *.csv
+
+# Ignorowanie konkretnego folderu
+/frontend-vue/
